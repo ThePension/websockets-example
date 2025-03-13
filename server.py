@@ -3,12 +3,12 @@ import websockets
 
 # List of connected clients
 clients = set()
-messages = []  # List holding messages
+messages = []  # List holding messages and sender
 
 async def handle_client(websocket):
     # Add new client
     clients.add(websocket)
-    
+
     try:
         # Send existing messages to the new client
         for message in messages:
@@ -17,6 +17,7 @@ async def handle_client(websocket):
         # Listen for messages
         async for message in websocket:
             messages.append(message)  # Store message in history
+            
             # Broadcast to all clients
             await asyncio.gather(*(client.send(message) for client in clients))
     except:

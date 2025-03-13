@@ -12,32 +12,56 @@
 </head>
 <body>
     <h2>WebSocket Chat</h2>
-    <div id="chat"></div>
-    <input type="text" id="messageInput" placeholder="Type a message">
-    <button onclick="sendMessage()">Send</button>
+
+    <div id="usernameContainer">
+        <label>Enter your name :<input type="text" id="name"/></label>
+        <button id="submitNameButton" onclick="startChatting()">Let's chat</button>
+    </div>
+
+    <div id="chatContainer" style="display: none;">
+        <div id="chat"></div>
+        <input type="text" id="messageInput" placeholder="Type a message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 
     <script>
         const chatDiv = document.getElementById("chat");
         const input = document.getElementById("messageInput");
 
-        // Init socket with server
-        const ws = new WebSocket("ws://localhost:8765");
+        let name;
+        let ws;
 
-        // Handle message from server
-        ws.onmessage = (event) => {
-            const msg = document.createElement("p");
-            msg.textContent = event.data;
+        function startChatting() {
+            name = document.getElementById("name").value;
 
-            chatDiv.appendChild(msg);
-            chatDiv.scrollTop = chatDiv.scrollHeight;
-        };
+            // Show chat container and hide username container
+            document.getElementById("usernameContainer").style.display = "none";
+            document.getElementById("chatContainer").style.display = "block";
+
+            // Init socket with server
+            ws = new WebSocket("ws://localhost:8765");
+
+            // Handle message from server
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                const msg = document.createElement("p");
+                msg.innerHTML = `<strong>${data.name}:</strong> ${data.value}`;
+
+                chatDiv.appendChild(msg);
+                chatDiv.scrollTop = chatDiv.scrollHeight;
+            };
+        }
 
         function sendMessage() {
-            const message = input.value;
+            // message: name, value
+            const message = {
+                name: name,
+                value: input.value
+            };
 
             if (message) {
                 // Send the message to the server
-                ws.send(message);
+                ws.send(JSON.stringify(message));
                 input.value = "";
             }
         }
