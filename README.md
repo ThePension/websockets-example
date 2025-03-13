@@ -1,3 +1,3 @@
 # websockets-example
 
-Basic Websockets Example using Python (server) and basic JavaScript (client)
+Basic web chat example to present Websockets, using Python (server) and basic JavaScript (client)
